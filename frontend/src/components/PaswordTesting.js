@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import Button from "@mui/material/Button";
-import React from "react";
+import React, { useState } from "react";
 import { Formik, Form, Field } from "formik";
 import { TextField } from "formik-mui";
 import { preventEnterSubmit } from "../utils/form-helpers";
@@ -17,6 +17,8 @@ const styles = {
 
 const PaswordTesting = () => {
   const { enqueueSnackbar } = useSnackbar();
+  const [steps, setSteps] = useState();
+  const [validateMsg, setValidateMsg] = useState();
 
   const initialValues = {
     password: "",
@@ -24,8 +26,11 @@ const PaswordTesting = () => {
 
   const addPasswordInDB = async ({ password }, resetForm) => {
     await axios.post(`${baseURL}/password`, { password }).then((data) => {
+      console.log(data.data);
+
+      setSteps(data.data.steps);
+      setValidateMsg(data.data.message);
       if (data.data.valid) {
-        resetForm({ password: "" });
         enqueueSnackbar(data.data.message, {
           variant: "success",
         });
@@ -57,6 +62,11 @@ const PaswordTesting = () => {
                   disabled={false}
                   variant="outlined"
                 />
+                <Box sx={{ margin: "10px 0" }}>
+                  {steps < 6 && steps >= 0 && values.password.length <= 6
+                    ? `You left with ${steps} steps characters`
+                    : validateMsg}
+                </Box>
               </Box>
               <Box sx={styles.textFieldBox}>
                 <Button variant="contained" type="submit" form="fileSubmitForm">
